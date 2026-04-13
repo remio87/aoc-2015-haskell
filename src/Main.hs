@@ -1,5 +1,10 @@
-module Main (main) where
+import qualified Day01
+import System.Environment (getArgs)
 
 main :: IO ()
 main = do
-  putStrLn "hello world"
+  args <- getArgs
+  case args of
+    ["01"] -> Day01.main
+    -- ["02"] -> Day02.main
+    _ -> putStrLn "Usage: aoc2015 <day>"
