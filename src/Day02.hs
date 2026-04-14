@@ -5,7 +5,7 @@ import Data.Maybe
 
 main :: IO ()
 main = do
-  input <- readFile "inputs/day01.txt"
+  input <- readFile "inputs/day02.txt"
   let parsed = parse input
   return ()
 
