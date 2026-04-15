@@ -25,6 +25,7 @@ executable aoc2015
   build-depends:       base >= 4.7 && < 5
                      , containers
                      , split
+                     , transformers
   ghc-options:         -Wall
                        -Wcompat
                        -Wincomplete-uni-patterns
