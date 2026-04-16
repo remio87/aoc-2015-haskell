@@ -27,6 +27,8 @@ executable aoc2015
                      , containers
                      , split
                      , transformers
+                     , cryptonite
+                     , bytestring
   ghc-options:         -Wall
                        -Wcompat
                        -Wincomplete-uni-patterns
