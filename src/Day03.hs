@@ -11,8 +11,7 @@ main :: IO ()
 main = do
   input <- readFile "inputs/day03.txt"
   putStrLn $ "Part 1: " ++ show (part1 input)
-
---   putStrLn $ "Part 2: " ++ show (part2 input)
+  putStrLn $ "Part 2: " ++ show (part2 input)
 
 data Direction = DRight | DLeft | DUp | DDown
 
@@ -40,5 +39,12 @@ part1 str = length $ nub visitedCoords
   where
     (_, visitedCoords) = runState (mapM_ visit (parse str)) [(0, 0)]
 
+santaList xs = [x | (x, i) <- zip xs [0 ..], even i]
+
+robotList xs = [x | (x, i) <- zip xs [0 ..], odd i]
+
 part2 :: String -> Int
-part2 = undefined
+part2 str = length $ nub (santaVisited ++ robotVisited)
+  where
+    (_, santaVisited) = runState (mapM_ visit (santaList (parse str))) [(0, 0)]
+    (_, robotVisited) = runState (mapM_ visit (robotList (parse str))) [(0, 0)]
