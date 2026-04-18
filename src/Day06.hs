@@ -9,7 +9,7 @@ main = do
 --   putStrLn $ "Part 2: " ++ show (part2 input)
 
 initArray :: [[Bool]]
-initArray = take 1000 $ repeat (take 1000 $ repeat False)
+initArray = replicate 1000 (replicate 1000 False)
 
 type Coord = (Int, Int)
 
@@ -20,8 +20,8 @@ data Op = On | Off | Toggle
 
 parseCoord :: String -> Coord
 parseCoord s =
-  let tup = break (== ',') s
-   in (read $ fst $ tup, read $ tail $ snd tup)
+  let (l, r) = break (== ',') s
+   in (read l, read $ tail r)
 
 parseOp :: [String] -> (Op, [String])
 parseOp ("turn" : "on" : rest) = (On, rest)
@@ -31,7 +31,7 @@ parseOp _ = undefined
 
 parseLine :: String -> (Op, Rect)
 parseLine s =
-  let (op, rest) = parseOp $ words $ s
+  let (op, rest) = parseOp $ words s
    in case rest of
         (lb : _ : ru : _) -> (op, (parseCoord lb, parseCoord ru))
         _ -> undefined
