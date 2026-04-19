@@ -6,8 +6,7 @@ main :: IO ()
 main = do
   input <- readFile "inputs/day06.txt"
   putStrLn $ "Part 1: " ++ show (part1 input)
-
---   putStrLn $ "Part 2: " ++ show (part2 input)
+  putStrLn $ "Part 2: " ++ show (part2 input)
 
 type Lights = Array (Int, Int) Bool
 
@@ -68,8 +67,21 @@ step l (On, rect) = setInRect True l rect
 step l (Off, rect) = setInRect False l rect
 step l (Toggle, rect) = toggleInRect l rect
 
+type LightsInten = Array (Int, Int) Int
+
+updateInten :: LightsInten -> Rect -> Int -> LightsInten
+updateInten l rect inten = l // [(c, max ((l ! c) + inten) 0) | c <- coordsInsideRect rect]
+
+step2 :: LightsInten -> (Op, Rect) -> LightsInten
+step2 l (On, rect) = updateInten l rect 1
+step2 l (Off, rect) = updateInten l rect (-1)
+step2 l (Toggle, rect) = updateInten l rect 2
+
+initArrayInten :: LightsInten
+initArrayInten = listArray ((0, 0), (999, 999)) (repeat 0)
+
 part1 :: String -> Int
 part1 = length . filter id . elems . foldl step initArray . map parseLine . lines
 
 part2 :: String -> Int
-part2 = undefined
+part2 = sum . elems . foldl step2 initArrayInten . map parseLine . lines
