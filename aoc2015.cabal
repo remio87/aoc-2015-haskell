@@ -31,6 +31,7 @@ executable aoc2015
                      , transformers
                      , cryptonite
                      , bytestring
+                     , array
   ghc-options:         -Wall
                        -Wcompat
                        -Wincomplete-uni-patterns
