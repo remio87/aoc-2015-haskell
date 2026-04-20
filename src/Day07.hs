@@ -9,8 +9,7 @@ main :: IO ()
 main = do
   input <- readFile "inputs/day07.txt"
   putStrLn $ "Part 1: " ++ show (part1 input)
-
---   putStrLn $ "Part 2: " ++ show (part2 input)
+  putStrLn $ "Part 2: " ++ show (part2 input)
 
 data Signal = Value Int | Wire String
 
@@ -57,4 +56,7 @@ part1 :: String -> Int
 part1 = fromJust . Map.lookup "a" . results . rules . map parseLine . lines
 
 part2 :: String -> Int
-part2 = undefined
+part2 s = fromJust $ Map.lookup "a" $ results updateRules
+  where
+    valA = part1 s
+    updateRules = Map.insert "b" (toFunc (Immediate (Value valA))) (rules $ map parseLine $ lines s)
