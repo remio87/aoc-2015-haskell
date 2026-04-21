@@ -6,8 +6,7 @@ main :: IO ()
 main = do
   input <- readFile "inputs/day08.txt"
   putStrLn $ "Part 1: " ++ show (part1 input)
-
---   putStrLn $ "Part 2: " ++ show (part2 input)
+  putStrLn $ "Part 2: " ++ show (part2 input)
 
 countCharInMem :: Int -> String -> Int
 countCharInMem i "" = i
@@ -25,5 +24,14 @@ checkDiff s = (length s) - (countCharInMem 0 s) + 2
 part1 :: String -> Int
 part1 = sum . map checkDiff . lines
 
+countCharInMem2 :: Int -> String -> Int
+countCharInMem2 i "" = i
+countCharInMem2 i ('\"' : rest) = countCharInMem2 (i + 2) rest
+countCharInMem2 i ('\\' : rest) = countCharInMem2 (i + 2) rest
+countCharInMem2 i (_ : rest) = countCharInMem2 (i + 1) rest
+
+checkDiff2 :: String -> Int
+checkDiff2 s = (countCharInMem2 0 s) - (length s) + 2
+
 part2 :: String -> Int
-part2 = undefined
+part2 = sum . map checkDiff2 . lines
