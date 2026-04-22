@@ -7,8 +7,7 @@ main :: IO ()
 main = do
   input <- readFile "inputs/day09.txt"
   putStrLn $ "Part 1: " ++ show (part1 input)
-
---   putStrLn $ "Part 2: " ++ show (part2 input)
+  putStrLn $ "Part 2: " ++ show (part2 input)
 
 type Graph = [(String, String, Int)]
 
@@ -43,4 +42,8 @@ part1 input =
    in minimum $ map (calcTotal g) prm
 
 part2 :: String -> Int
-part2 = undefined
+part2 input =
+  let g = map parseLine $ lines input
+      ps = places g
+      prm = perm ps
+   in maximum $ map (calcTotal g) prm
