@@ -3,8 +3,7 @@ module Day10 where
 main :: IO ()
 main = do
   putStrLn $ "Part 1: " ++ show (part1 "1113122113")
-
---   putStrLn $ "Part 2: " ++ show (part2 input)
+  putStrLn $ "Part 2: " ++ show (part2 "1113122113")
 
 data Accum = Accum {prev :: Int, count :: Int} deriving (Show)
 
@@ -31,4 +30,4 @@ part1 :: String -> Int
 part1 = length . last . take 41 . iterate (accumToResult . lookAndSay [] . parseLine)
 
 part2 :: String -> Int
-part2 = undefined
+part2 = length . last . take 51 . iterate (accumToResult . lookAndSay [] . parseLine)
