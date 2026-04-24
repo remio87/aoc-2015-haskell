@@ -8,6 +8,7 @@ import qualified Day07
 import qualified Day08
 import qualified Day09
 import qualified Day10
+import qualified Day11
 import System.Environment (getArgs)
 
 main :: IO ()
@@ -24,4 +25,5 @@ main = do
     ["08"] -> Day08.main
     ["09"] -> Day09.main
     ["10"] -> Day10.main
+    ["11"] -> Day11.main
     _ -> putStrLn "Usage: aoc2015 <day>"
