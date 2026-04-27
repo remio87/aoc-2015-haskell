@@ -2,6 +2,7 @@ module Day12 where
 
 import Data.Char (isDigit)
 import qualified Data.HashSet as HashSet
+import Data.List (isPrefixOf)
 
 main :: IO ()
 main = do
@@ -28,6 +29,39 @@ replaceChars = map replaceChar
 
 isElemNumber :: String -> Bool
 isElemNumber s = all (\c -> isDigit c || c == '-') s
+
+-- findObjectEnd :: String -> Int
+-- findObjectEnd = findObjectEnd' 0 0
+
+-- findObjectEnd' :: Int -> Int -> String -> Int
+-- findObjectEnd' i _ [] = i
+-- findObjectEnd' i count (c : rest) =
+--   if c == '}'
+--     then
+--       if count == 0
+--         then i
+--         else findObjectEnd' (i + 1) (count - 1) rest
+--     else
+--       if c == '{'
+--         then findObjectEnd' (i + 1) (count + 1) rest
+--         else findObjectEnd' (i + 1) count rest
+
+-- removeRed :: Int -> Int -> String -> String
+-- removeRed _ _ [] = []
+-- removeRed cur _ ('{' : rest) = removeRed (cur + 1) cur (['{'] ++ rest)
+-- removeRed cur prevBra s =
+--   if cur > length s
+--     then s
+--     else
+--       if "{" `isPrefixOf` (drop cur s)
+--         then removeRed (cur + 1) cur s
+--         else
+--           if "red" `isPrefixOf` (drop cur s)
+--             then removeRed 0 0 (stripRed s)
+--             else removeRed (cur + 1) prevBra s
+--   where
+--     stripRed str = take prevBra str ++ drop nextBra str
+--     nextBra = findObjectEnd $ drop prevBra s
 
 part1 :: String -> Int
 part1 = sum . map read . filter isElemNumber . words . replaceChars
