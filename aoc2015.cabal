@@ -39,6 +39,8 @@ executable aoc2015
                      , bytestring
                      , array
                      , unordered-containers
+                     , aeson
+                     , vector
   ghc-options:         -Wall
                        -Wcompat
                        -Wincomplete-uni-patterns

@@ -1,13 +1,20 @@
+{-# LANGUAGE OverloadedStrings #-}
+
 module Day12 where
 
+import Data.Aeson
+import qualified Data.Aeson.KeyMap as KM
+import qualified Data.ByteString.Lazy.Char8 as BL
 import Data.Char (isDigit)
 import qualified Data.HashSet as HashSet
-import Data.List (isPrefixOf)
+import Data.Maybe (fromJust)
+import qualified Data.Vector as V
 
 main :: IO ()
 main = do
   input <- readFile "inputs/day12.txt"
   putStrLn $ "part1: " ++ (show $ part1 input)
+  putStrLn $ "part2: " ++ (show $ part2 input)
 
 charToReplace :: HashSet.HashSet Char
 charToReplace =
@@ -65,3 +72,18 @@ isElemNumber s = all (\c -> isDigit c || c == '-') s
 
 part1 :: String -> Int
 part1 = sum . map read . filter isElemNumber . words . replaceChars
+
+parseJson :: String -> Maybe Value
+parseJson s = decode $ BL.pack s
+
+hasObjectRed :: Object -> Bool
+hasObjectRed o = any (\e -> e == (String "red")) o
+
+removeRed :: Value -> Value
+removeRed (Object o) = if hasObjectRed o then Null else Object (KM.map removeRed o)
+removeRed (Array a) = Array (V.map removeRed a)
+removeRed (String "red") = Null
+removeRed v = v
+
+part2 :: String -> Int
+part2 s = fromJust $ (part1 . BL.unpack . encode) <$> (removeRed <$> parseJson s)
