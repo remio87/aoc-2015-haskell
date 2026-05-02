@@ -8,6 +8,7 @@ main :: IO ()
 main = do
   input <- readFile "inputs/day13.txt"
   putStrLn $ "Part 1: " ++ show (part1 input)
+  putStrLn $ "Part 2: " ++ show (part2 input)
 
 data Line = Line
   { sub :: String,
@@ -60,5 +61,17 @@ part1 s = maximum $ map (evalArrange table) arranges
     table = parseToTable s
     arranges = allArrangement (Map.keys table)
 
+addMeToTable :: HappyTable -> HappyTable
+addMeToTable t = addGuestHappy $ addMyHappy t
+  where
+    guests = Map.keys t
+    addMyHappy :: HappyTable -> HappyTable
+    addMyHappy tab = foldl (\tt g -> Map.insert "me" (Map.insert g 0 (Map.findWithDefault Map.empty "me" tt)) tt) tab guests
+    addGuestHappy :: HappyTable -> HappyTable
+    addGuestHappy tab = foldl (\tt g -> Map.insert g (fromJust $ Map.insert "me" 0 <$> Map.lookup g tt) tt) tab guests
+
 part2 :: String -> Int
-part2 = undefined
+part2 s = maximum $ map (evalArrange table) arranges
+  where
+    table = addMeToTable $ parseToTable s
+    arranges = allArrangement (Map.keys table)
