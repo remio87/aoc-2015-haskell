@@ -30,6 +30,7 @@ executable aoc2015
                      , Day10
                      , Day11
                      , Day12
+                     , Day13
   default-language:    Haskell2010
   build-depends:       base >= 4.7 && < 5
                      , containers
