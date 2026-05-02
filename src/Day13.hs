@@ -1,9 +1,13 @@
 module Day13 where
 
+import Data.List (permutations)
+import qualified Data.Map as Map
+import Data.Maybe (fromJust)
+
 main :: IO ()
 main = do
   input <- readFile "inputs/day13.txt"
-  return ()
+  putStrLn $ "Part 1: " ++ show (part1 input)
 
 data Line = Line
   { sub :: String,
@@ -11,6 +15,16 @@ data Line = Line
     happy :: Int
   }
   deriving (Show)
+
+type HappyEntry = Map.Map String Int
+
+type HappyTable = Map.Map String HappyEntry
+
+addLineToTable :: HappyTable -> Line -> HappyTable
+addLineToTable t (Line s o h) =
+  case Map.lookup s t of
+    Nothing -> Map.insert s (Map.singleton o h) t
+    Just entry -> Map.insert s (Map.insert o h entry) t
 
 parseLine :: String -> Line
 parseLine = go . words
@@ -24,8 +38,27 @@ parseLine = go . words
 parseFile :: String -> [Line]
 parseFile = map parseLine . lines
 
+parseToTable :: String -> HappyTable
+parseToTable = foldl addLineToTable Map.empty . parseFile
+
+allArrangement :: [String] -> [[String]]
+allArrangement (a : rest) = map (\ss -> [a] ++ ss ++ [a]) (permutations rest)
+allArrangement _ = undefined
+
+evalArrangeOne :: HappyTable -> [String] -> Int
+evalArrangeOne t ss = foldl f 0 zipped
+  where
+    zipped = zip ss (tail ss)
+    f i (a, b) = i + fromJust (Map.lookup a t >>= Map.lookup b)
+
+evalArrange :: HappyTable -> [String] -> Int
+evalArrange t ss = (evalArrangeOne t ss) + (evalArrangeOne t (reverse ss))
+
 part1 :: String -> Int
-part1 = undefined
+part1 s = maximum $ map (evalArrange table) arranges
+  where
+    table = parseToTable s
+    arranges = allArrangement (Map.keys table)
 
 part2 :: String -> Int
 part2 = undefined
