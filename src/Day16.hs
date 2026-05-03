@@ -6,6 +6,7 @@ main :: IO ()
 main = do
   input <- readFile "inputs/day16.txt"
   putStrLn $ "part1: " ++ show (part1 input)
+  putStrLn $ "part2: " ++ show (part2 input)
 
 data Sue = Sue
   { children :: Maybe Int,
@@ -112,5 +113,30 @@ checkSue sue = all id $ map (checkProp sue) props
       Nothing -> True
       Just pv -> (fromJust (p target)) == pv
 
+propsWithCond :: [((Sue -> Maybe Int), (Int -> Int -> Bool))]
+propsWithCond =
+  [ (children, (==)),
+    (cats, (>)),
+    (samoyeds, (==)),
+    (pomeranians, (<)),
+    (akitas, (==)),
+    (vizslas, (==)),
+    (goldfish, (<)),
+    (trees, (>)),
+    (cars, (==)),
+    (perfumes, (==))
+  ]
+
+checkSue2 :: Sue -> Bool
+checkSue2 sue = all id $ map (checkProp sue) propsWithCond
+  where
+    checkProp :: Sue -> ((Sue -> Maybe Int), (Int -> Int -> Bool)) -> Bool
+    checkProp s (p, cond) = case p s of
+      Nothing -> True
+      Just pv -> pv `cond` (fromJust (p target))
+
 part1 :: String -> Int
 part1 str = fst $ head $ filter (\(_, s) -> checkSue s) $ map parseLine $ lines str
+
+part2 :: String -> Int
+part2 str = fst $ head $ filter (\(_, s) -> checkSue2 s) $ map parseLine $ lines str
