@@ -3,6 +3,7 @@ module Day15 where
 main :: IO ()
 main = do
   putStrLn $ "part1: " ++ show (part1)
+  putStrLn $ "part2: " ++ show (part2)
 
 data Ingredient = Ingredient
   { capacity :: Int,
@@ -32,8 +33,15 @@ calcProp prop (s, b, ch, ca) = if total < 0 then 0 else total
 calcTotalScore :: (Int, Int, Int, Int) -> Int
 calcTotalScore amount = product $ map (flip calcProp amount) [capacity, durability, flavor, texture]
 
+calcTotalCal :: (Int, Int, Int, Int) -> Int
+calcTotalCal (s, b, ch, ca) =
+  (calories sprinkles) * s + (calories butterscotch) * b + (calories chocolate) * ch + (calories candy) * ca
+
 genAllCombination :: [(Int, Int, Int, Int)]
 genAllCombination = [(a, b, c, d) | a <- [0 .. 100], b <- [0 .. 100 - a], c <- [0 .. 100 - (a + b)], let d = 100 - (a + b + c)]
 
 part1 :: Int
 part1 = maximum $ map calcTotalScore genAllCombination
+
+part2 :: Int
+part2 = maximum $ map fst $ filter (\(_, cal) -> cal == 500) $ zip (map calcTotalScore genAllCombination) (map calcTotalCal genAllCombination)
