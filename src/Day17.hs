@@ -1,10 +1,12 @@
 module Day17 where
 
-import Data.Array (Array, array, (!), (//))
+import Data.Array (Array, array, (!))
+import Data.List (subsequences)
 
 main :: IO ()
 main = do
-  return ()
+  putStrLn $ "part1: " ++ show part1
+  putStrLn $ "part2: " ++ show part2
 
 containers :: [Int]
 containers = [50, 44, 11, 49, 42, 46, 18, 32, 26, 40, 21, 7, 18, 43, 10, 47, 36, 24, 22, 40]
@@ -33,3 +35,15 @@ updateAll = foldl update initDp (zip [1 ..] containers)
 
 part1 :: Int
 part1 = updateAll ! (20, 150)
+
+checkContainers :: [Int] -> Bool
+checkContainers cs = (sum cs) == 150
+
+allCombination :: [[Int]]
+allCombination = subsequences containers
+
+part2 :: Int
+part2 = length $ filter (\cs -> length cs == minimumContainerNum) passedContainers
+  where
+    passedContainers = filter checkContainers $ allCombination
+    minimumContainerNum = minimum $ map length passedContainers
