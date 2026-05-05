@@ -7,6 +7,7 @@ main :: IO ()
 main = do
   input <- readFile "inputs/day18.txt"
   putStrLn $ "part 1: " ++ show (part1 input)
+  putStrLn $ "part 2: " ++ show (part2 input)
 
 arrSize :: Int
 arrSize = 100
@@ -34,6 +35,27 @@ adjacentIndices (x, y) = filter (/= (x, y)) [(a, b) | a <- [x - 1 .. x + 1], b <
 
 part1 :: String -> Int
 part1 = length . filter id . elems . (!! 100) . iterate nextGrid . initArray . map (map conv) . lines
+  where
+    conv '.' = False
+    conv '#' = True
+    conv _ = undefined
+
+nextGrid2 :: Array (Int, Int) Bool -> Array (Int, Int) Bool
+nextGrid2 arr = listArray (bounds arr) [nextCell (i, j) | (i, j) <- indices arr]
+  where
+    adjacentSum :: (Int, Int) -> Int
+    adjacentSum idx = length $ filter id $ map (getCell arr) $ adjacentIndices idx
+    isCorner idx = idx == (0, 0) || idx == (0, 99) || idx == (99, 0) || idx == (99, 99)
+    nextCell :: (Int, Int) -> Bool
+    nextCell idx =
+      if isCorner idx
+        then True
+        else case arr ! idx of
+          True -> if adjacentSum idx == 2 || adjacentSum idx == 3 then True else False
+          False -> if adjacentSum idx == 3 then True else False
+
+part2 :: String -> Int
+part2 = length . filter id . elems . (!! 100) . iterate nextGrid2 . initArray . map (map conv) . lines
   where
     conv '.' = False
     conv '#' = True
