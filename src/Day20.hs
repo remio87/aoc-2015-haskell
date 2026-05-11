@@ -55,7 +55,7 @@ houseScores2 =
 -- houseScoreCum = scanl1 (+) $ map houseScore [1 ..]
 
 part1 :: Int
-part1 = (+ 1) $ length $ takeWhile (\(_, v) -> v < input) $ assocs houseScores
+part1 = (+ 1) $ length $ takeWhile (\(_, v) -> v < input1) $ assocs houseScores
 
 -- part1 = (+ 1) $ length $ takeWhile (< input) (map houseScore [1 ..])
 
