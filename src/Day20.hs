@@ -3,26 +3,38 @@
 module Day20 where
 
 import Data.Array (Array, accumArray, assocs)
-import Data.List (nub)
 
 main :: IO ()
 main = do
-  return ()
+  putStrLn $ "part1: " ++ show part1
+  putStrLn $ "part2: " ++ show part2
 
 input :: Int
-input = 3_600_000
+input = 36_000_000
 
--- input = 36_000_000
+input1 :: Int
+input1 = 3_600_000
 
 houseScores :: Array Int Int
 houseScores =
   accumArray
     (+)
     0
-    (1, input)
+    (1, input1)
     [ (house, elf)
+    | elf <- [1 .. input1],
+      house <- [elf, elf * 2 .. input1]
+    ]
+
+houseScores2 :: Array Int Int
+houseScores2 =
+  accumArray
+    (+)
+    0
+    (1, input)
+    [ (house, elf * 11)
     | elf <- [1 .. input],
-      house <- [elf, elf * 2 .. input]
+      house <- [elf, elf * 2 .. min (elf * 50) input]
     ]
 
 -- allFactors :: Int -> [Int]
@@ -46,3 +58,6 @@ part1 :: Int
 part1 = (+ 1) $ length $ takeWhile (\(_, v) -> v < input) $ assocs houseScores
 
 -- part1 = (+ 1) $ length $ takeWhile (< input) (map houseScore [1 ..])
+
+part2 :: Int
+part2 = (+ 1) $ length $ takeWhile (\(_, v) -> v < input) $ assocs houseScores2
