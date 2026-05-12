@@ -2,7 +2,8 @@ module Day21 where
 
 main :: IO ()
 main = do
-  return ()
+  putStrLn $ "part1: " ++ show part1
+  putStrLn $ "part2: " ++ show part2
 
 playerHp :: Int
 playerHp = 100
@@ -99,3 +100,6 @@ isWin e = damageToBoss * turn > damageToPlayer * (turn - 1)
 
 part1 :: Int
 part1 = minimum $ map (\(c, _, _) -> c) $ map equipSpec $ filter isWin allEquip
+
+part2 :: Int
+part2 = maximum $ map (\(c, _, _) -> c) $ map equipSpec $ filter (not . isWin) allEquip
