@@ -1,5 +1,8 @@
+{-# LANGUAGE PatternGuards #-}
+
 module Day22 where
 
+import Control.Applicative ((<|>))
 import Data.List.NonEmpty (nonEmpty)
 import Data.Maybe (catMaybes)
 
@@ -40,22 +43,26 @@ initialState =
       turnForRecharge = 0
     }
 
-search :: GameState -> Maybe Int
-search gs =
-  if playerDied
-    then Nothing
-    else
-      if bossDied
-        then Just (manaConsumed gs)
-        else fmap minimum $ nonEmpty $ catMaybes $ map search nextGs
+search :: GameState -> Maybe Int -> Maybe Int
+search gs bound
+  | maybe False (manaConsumed gs >=) bound = Nothing
+  | playerDied = Nothing
+  | bossDied = Just (manaConsumed gs)
+  | otherwise = foldl step' Nothing nextGs
   where
     applied = applyEffect gs
     bossDied = bossHp applied <= 0
     playerDied = playerHp applied <= 0
     nextGs = step applied
+    step' best gs' =
+      let result = search gs' (best <|> bound)
+       in case (best, result) of
+            (Nothing, _) -> result
+            (_, Nothing) -> best
+            (Just b, Just r) -> Just (min b r)
 
 applyEffect :: GameState -> GameState
-applyEffect = applyRecharge . applyPoison . decrementTurns
+applyEffect = decrementTurns . applyRecharge . applyPoison
 
 decrementTurns :: GameState -> GameState
 decrementTurns gs =
@@ -183,4 +190,4 @@ castRecharge gs
     turns = 5
 
 part1 :: Maybe Int
-part1 = search initialState
+part1 = search initialState Nothing
