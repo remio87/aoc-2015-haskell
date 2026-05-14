@@ -1,11 +1,20 @@
 module Day22 where
-import Data.Maybe (maybeToList, listToMaybe, catMaybes)
+
+import Data.List.NonEmpty (nonEmpty)
+import Data.Maybe (catMaybes)
 
 main :: IO ()
 main = do
-  return ()
+  putStrLn $ "part1: " ++ show (part1)
+
+initBossHp :: Int
+initBossHp = 55
+
+bossDamage :: Int
+bossDamage = 8
 
 data Turn = Player | Boss
+  deriving (Eq)
 
 data GameState = GameState
   { turn :: Turn,
@@ -18,14 +27,160 @@ data GameState = GameState
     turnForRecharge :: Int
   }
 
+initialState :: GameState
+initialState =
+  GameState
+    { turn = Player,
+      manaConsumed = 0,
+      playerHp = 50,
+      bossHp = initBossHp,
+      manaRemaining = 500,
+      turnForShield = 0,
+      turnForPoison = 0,
+      turnForRecharge = 0
+    }
+
 search :: GameState -> Maybe Int
 search gs =
-  if bossDied
-    then Just (manaConsumed gs)
-    else listToMaybe $ minimum $ catMaybes $ map search nextGs
+  if playerDied
+    then Nothing
+    else
+      if bossDied
+        then Just (manaConsumed gs)
+        else fmap minimum $ nonEmpty $ catMaybes $ map search nextGs
   where
-    applyEffect = undefined
     applied = applyEffect gs
-    bossDied = bossHp applied <= 1
-    nextGs :: [GameState]
-    nextGs = undefined
+    bossDied = bossHp applied <= 0
+    playerDied = playerHp applied <= 0
+    nextGs = step applied
+
+applyEffect :: GameState -> GameState
+applyEffect = applyRecharge . applyPoison . decrementTurns
+
+decrementTurns :: GameState -> GameState
+decrementTurns gs =
+  gs
+    { turnForShield = max ((turnForShield gs) - 1) 0,
+      turnForPoison = max ((turnForPoison gs) - 1) 0,
+      turnForRecharge = max ((turnForRecharge gs) - 1) 0
+    }
+
+applyPoison :: GameState -> GameState
+applyPoison gs
+  | turnForPoison gs > 0 = gs {bossHp = (bossHp gs) - poisonDamage}
+  | otherwise = gs
+  where
+    poisonDamage = 3
+
+applyRecharge :: GameState -> GameState
+applyRecharge gs
+  | turnForRecharge gs > 0 = gs {manaRemaining = (manaRemaining gs) + rechargeMana}
+  | otherwise = gs
+  where
+    rechargeMana = 101
+
+applyBossAttack :: GameState -> GameState
+applyBossAttack gs = gs {playerHp = (playerHp gs) - damage}
+  where
+    playerArmor
+      | turnForShield gs > 0 = 7
+      | otherwise = 0
+    damage = max (bossDamage - playerArmor) 1
+
+switchTurn :: GameState -> GameState
+switchTurn gs
+  | turn gs == Boss = gs {turn = Player}
+  | turn gs == Player = gs {turn = Boss}
+  | otherwise = undefined
+
+step :: GameState -> [GameState]
+step gs
+  | turn gs == Boss = [switchTurn $ applyBossAttack gs]
+  | turn gs == Player = map switchTurn $ catMaybes $ map ($ gs) casts
+  | otherwise = undefined
+  where
+    casts = [castMagicMissile, castDrain, castShield, castPoison, castRecharge]
+
+consumeMana :: GameState -> Int -> GameState
+consumeMana gs mana =
+  gs
+    { manaConsumed = (manaConsumed gs) + mana,
+      manaRemaining = (manaRemaining gs) - mana
+    }
+
+castMagicMissile :: GameState -> Maybe GameState
+castMagicMissile gs
+  | turn gs /= Player = error "must Player turn"
+  | manaRemaining gs < cost = Nothing
+  | otherwise =
+      Just $
+        gs'
+          { bossHp = (bossHp gs') - damage
+          }
+  where
+    gs' = consumeMana gs cost
+    cost = 53
+    damage = 4
+
+castDrain :: GameState -> Maybe GameState
+castDrain gs
+  | turn gs /= Player = error "must Player turn"
+  | manaRemaining gs < cost = Nothing
+  | otherwise =
+      Just $
+        gs'
+          { bossHp = (bossHp gs') - drain,
+            playerHp = (playerHp gs') + drain
+          }
+  where
+    gs' = consumeMana gs cost
+    cost = 73
+    drain = 2
+
+castShield :: GameState -> Maybe GameState
+castShield gs
+  | turn gs /= Player = error "must Player turn"
+  | manaRemaining gs < cost = Nothing
+  | turnForShield gs > 0 = Nothing
+  | otherwise =
+      Just $
+        gs'
+          { turnForShield = turns
+          }
+  where
+    gs' = consumeMana gs cost
+    cost = 113
+    turns = 6
+
+castPoison :: GameState -> Maybe GameState
+castPoison gs
+  | turn gs /= Player = error "must Player turn"
+  | manaRemaining gs < cost = Nothing
+  | turnForPoison gs > 0 = Nothing
+  | otherwise =
+      Just $
+        gs'
+          { turnForPoison = turns
+          }
+  where
+    gs' = consumeMana gs cost
+    cost = 173
+    turns = 6
+
+castRecharge :: GameState -> Maybe GameState
+castRecharge gs
+  | turn gs /= Player = error "must Player turn"
+  | manaRemaining gs < cost = Nothing
+  | turnForRecharge gs > 0 = Nothing
+  | otherwise =
+      Just $
+        gs'
+          { turnForRecharge = turns
+          }
+  where
+    gs' = consumeMana gs cost
+    cost = 229
+    turns = 5
+
+part1 :: Maybe Int
+part1 = search initialState
