@@ -3,12 +3,12 @@
 module Day22 where
 
 import Control.Applicative ((<|>))
-import Data.List.NonEmpty (nonEmpty)
 import Data.Maybe (catMaybes)
 
 main :: IO ()
 main = do
   putStrLn $ "part1: " ++ show (part1)
+  putStrLn $ "part2: " ++ show (part2)
 
 initBossHp :: Int
 initBossHp = 55
@@ -61,8 +61,34 @@ search gs bound
             (_, Nothing) -> best
             (Just b, Just r) -> Just (min b r)
 
+search2 :: GameState -> Maybe Int -> Maybe Int
+search2 gs bound
+  | maybe False (manaConsumed gs >=) bound = Nothing
+  | playerDied = Nothing
+  | bossDied = Just (manaConsumed gs)
+  | otherwise = foldl step' Nothing nextGs
+  where
+    applied = applyEffect2 gs
+    bossDied = bossHp applied <= 0
+    playerDied = playerHp applied <= 0
+    nextGs = step applied
+    step' best gs' =
+      let result = search2 gs' (best <|> bound)
+       in case (best, result) of
+            (Nothing, _) -> result
+            (_, Nothing) -> best
+            (Just b, Just r) -> Just (min b r)
+
 applyEffect :: GameState -> GameState
 applyEffect = decrementTurns . applyRecharge . applyPoison
+
+applyHard :: GameState -> GameState
+applyHard gs
+  | (turn gs) == Player = gs {playerHp = (playerHp gs) - 1}
+  | otherwise = gs
+
+applyEffect2 :: GameState -> GameState
+applyEffect2 = decrementTurns . applyRecharge . applyPoison . applyHard
 
 decrementTurns :: GameState -> GameState
 decrementTurns gs =
@@ -191,3 +217,6 @@ castRecharge gs
 
 part1 :: Maybe Int
 part1 = search initialState Nothing
+
+part2 :: Maybe Int
+part2 = search2 initialState Nothing
